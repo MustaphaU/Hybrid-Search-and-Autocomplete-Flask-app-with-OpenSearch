@@ -1,7 +1,9 @@
 import re
 from flask import Flask, render_template, request
+from search import Search
 
 app = Flask(__name__)
+ops = Search()
 
 
 @app.get('/')
