@@ -28,9 +28,15 @@ def handle_search():
                            total=results['hits']['total']['value'])
 
 
+
 @app.get('/document/<id>')
 def get_document(id):
-    return 'Document not found'
+    document = ops.retrieve_document(id)
+    title = document['_source']['name']
+    print(f'title: {title}')
+    paragraphs = document['_source']['content'].split('\n')
+    print(f'paragraphs: {paragraphs}')
+    return render_template('document.html', title=title, paragraphs=paragraphs)
 
 @app.cli.command()
 def reindex():

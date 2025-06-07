@@ -49,3 +49,6 @@ class Search:
         body = query_args.get('query', {})
         print(f'Searching with query: {body}')
         return self.ops.search(index='my_documents', body={'query': body})
+    
+    def retrieve_document(self, id):
+        return self.ops.get(index='my_documents', id=id)
