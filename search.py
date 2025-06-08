@@ -46,9 +46,10 @@ class Search:
         return self.insert_documents(documents)
     
     def search(self, **query_args):
-        body = query_args.get('query', {})
-        print(f'Searching with query: {body}')
-        return self.ops.search(index='my_documents', body={'query': body})
+        if 'from_' in query_args:
+            query_args['from']=query_args['from_']
+            del query_args['from_']
+        return self.ops.search(index='my_documents', body=json.dumps(query_args))
     
     def retrieve_document(self, id):
         return self.ops.get(index='my_documents', id=id)
