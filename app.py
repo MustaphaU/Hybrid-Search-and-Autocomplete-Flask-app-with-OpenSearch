@@ -48,6 +48,26 @@ def handle_search():
     query = request.form.get('query', '')
     filters, parsed_query = extract_filters(query)
     from_ = request.form.get('from_', type=int, default=0)
+    
+    def get_model_id(model_name):
+        models = ops.transport.perform_request("GET", "/_plugins/_ml/models/_search", 
+        body={
+        "query": {
+            "term": {
+                "name.keyword": model_name
+            }
+        },
+        "_source": ["model_id"],
+        "size": 1,
+        }
+    )
+
+    if models["hits"]["hits"]:
+        return models["hits"]["hits"][0]["_source"]["model_id"] 
+    else:
+        raise ValueError(f"{model_name} model not found.")
+
+
 
     results = ops.search(
         query={
