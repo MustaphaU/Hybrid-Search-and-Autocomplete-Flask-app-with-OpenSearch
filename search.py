@@ -29,7 +29,7 @@ class Search:
         self.ops.indices.delete(index='my_documents', ignore_unavailable=True)
         self.ops.indices.create(index='my_documents', mappings={
             'properties': {
-                'embedding': {
+                'content_embedding': {
                     'type': 'dense_vector',
                 }
             }
