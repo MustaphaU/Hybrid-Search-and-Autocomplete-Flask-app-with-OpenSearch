@@ -43,7 +43,7 @@ class Search:
                             "dimension": 384,
                             "method": {
                                 "name": "hnsw",
-                                "space_type": "innerproduct",
+                                "space_type": "cosinesimil",
                                 "engine": "lucene",
                             },
                         }
