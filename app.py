@@ -49,26 +49,64 @@ def handle_search():
     filters, parsed_query = extract_filters(query)
     from_ = request.form.get('from_', type=int, default=0)
 
-    results = ops.search(
-        query={
-            "neural": {
-                "summary_embedding": {
-                    "query_text": parsed_query,
-                    "model_id": ops.get_model_id("huggingface/sentence-transformers/all-MiniLM-L6-v2"),
-                    "k": 10,
-                    'num_candidates': 50,
-                }
+    # Build the query
+    query_body = {
+        "query": {
+            "bool": {
+                "must": {
+                    "neural": {
+                        "summary_embedding": {
+                            "query_text": parsed_query,
+                            "model_id": ops.get_model_id("huggingface/sentence-transformers/all-MiniLM-L6-v2"),
+                            "k": 50
+                        }
+                    }
+                },
+                **filters  # Place filters here under the 'bool' query
             }
         },
-        size= 5,
-        from_= from_,
+        "aggs": {
+            "category-agg": {
+                "terms": {
+                    "field": "category.keyword",
+                }
+            },
+            "year-agg": {
+                "date_histogram": {
+                    "field": "updated_at",
+                    "calendar_interval": "year",
+                    "format": "yyyy",
+                },
+            },
+        },
+        "size": 5,
+        "from": from_,
+    }
+
+    # Execute the search
+    results = ops.search(**query_body)
+
+    # Process aggregations
+    aggs = {
+        "Category": {
+            bucket["key"]: bucket["doc_count"]
+            for bucket in results["aggregations"]["category-agg"]["buckets"]
+        },
+        "Year": {
+            bucket["key_as_string"]: bucket["doc_count"]
+            for bucket in results["aggregations"]["year-agg"]["buckets"]
+            if bucket["doc_count"] > 0
+        },
+    }
+
+    return render_template(
+        'index.html',
+        results=results['hits']['hits'],
+        query=query,
+        from_=from_,
+        total=results['hits']['total']['value'],
+        aggs=aggs
     )
-    
-    return render_template('index.html', 
-                        results=results['hits']['hits'], 
-                        query=query, from_=from_, 
-                        total=results['hits']['total']['value']
-                        )
     # if parsed_query:
     #     search_query = {
     #         'must': {
