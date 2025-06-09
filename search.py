@@ -27,6 +27,24 @@ class Search:
         print("Connected to Opensearch!")
         pprint(client_info)
 
+    def get_model_id(self, model_name):
+        models = self.ops.transport.perform_request("GET", "/_plugins/_ml/models/_search", 
+            body={
+                "query": {
+                    "term": {
+                        "name.keyword": model_name
+                    }
+                },
+                "_source": ["model_id"],
+                "size": 1,
+            }
+        )
+
+        if models["hits"]["hits"]:
+            return models["hits"]["hits"][0]["_source"]["model_id"] 
+        else:
+            raise ValueError(f"{model_name} model not found.")
+
     def create_index(self):
         self.ops.indices.delete(index="my_documents", ignore_unavailable=True)
         self.ops.indices.create(

@@ -48,33 +48,13 @@ def handle_search():
     query = request.form.get('query', '')
     filters, parsed_query = extract_filters(query)
     from_ = request.form.get('from_', type=int, default=0)
-    
-    def get_model_id(model_name):
-        models = ops.transport.perform_request("GET", "/_plugins/_ml/models/_search", 
-        body={
-        "query": {
-            "term": {
-                "name.keyword": model_name
-            }
-        },
-        "_source": ["model_id"],
-        "size": 1,
-        }
-    )
-
-    if models["hits"]["hits"]:
-        return models["hits"]["hits"][0]["_source"]["model_id"] 
-    else:
-        raise ValueError(f"{model_name} model not found.")
-
-
 
     results = ops.search(
         query={
             "neural": {
                 "summary_embedding": {
                     "query_text": parsed_query,
-                    "model_id": "vksRVZcBpHtcKjIohAOk",
+                    "model_id": ops.get_model_id("huggingface/sentence-transformers/all-MiniLM-L6-v2"),
                     "k": 5
                 }
             }
@@ -138,11 +118,11 @@ def handle_search():
     #         if bucket['doc_count'] > 0
     #     },
     # }
-    return render_template('index.html', 
-                           results=results['hits']['hits'], 
-                           query=query, from_=from_, 
-                           total=results['hits']['total']['value'],
-                           aggs=aggs)
+    # return render_template('index.html', 
+    #                        results=results['hits']['hits'], 
+    #                        query=query, from_=from_, 
+    #                        total=results['hits']['total']['value'],
+    #                        aggs=aggs)
 
 @app.get('/document/<id>')
 def get_document(id):
