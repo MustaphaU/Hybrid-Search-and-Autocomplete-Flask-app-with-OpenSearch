@@ -55,7 +55,8 @@ def handle_search():
                 "summary_embedding": {
                     "query_text": parsed_query,
                     "model_id": ops.get_model_id("huggingface/sentence-transformers/all-MiniLM-L6-v2"),
-                    "k": 5
+                    "k": 10,
+                    'num_candidates': 50,
                 }
             }
         },
