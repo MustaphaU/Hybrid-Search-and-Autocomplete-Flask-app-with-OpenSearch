@@ -38,7 +38,7 @@ class Search:
                 },
                 "mappings": {
                     "properties": {
-                        "content_embedding": {
+                        "summary_embedding": {
                             "type": "knn_vector",
                             "dimension": 384,
                             "method": {
