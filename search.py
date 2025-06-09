@@ -27,7 +27,14 @@ class Search:
 
     def create_index(self):
         self.ops.indices.delete(index='my_documents', ignore_unavailable=True)
-        self.ops.indices.create(index='my_documents')
+        self.ops.indices.create(index='my_documents', mappings={
+            'properties': {
+                'embedding': {
+                    'type': 'dense_vector',
+                }
+            }
+        })
+
 
     def insert_document(self, document):
         return self.ops.index(index='my_documents', body=document)
