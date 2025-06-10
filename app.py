@@ -80,7 +80,7 @@ def handle_search():
             },
         },
         "size": 5,
-        "from": from_,
+        "from_": from_,
     }
 
     # Execute the search
