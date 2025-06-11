@@ -49,23 +49,54 @@ def handle_search():
     filters, parsed_query = extract_filters(query)
     from_ = request.form.get('from_', type=int, default=0)
 
-    # Build the query
-    query_body = {
-        "query": {
-            "bool": {
-                "must": {
-                    "neural": {
-                        "summary_embedding": {
-                            "query_text": parsed_query,
-                            "model_id": ops.get_model_id("huggingface/sentence-transformers/all-MiniLM-L6-v2"),
-                            "k": 50
-                        }
-                    }
-                },
-                **filters  # Place filters here under the 'bool' query
+    if parsed_query:
+        search_query = {
+            "must": {
+                "multi_match": {
+                    "query": parsed_query,
+                    "fields": ["name", "summary", "content"],
+                }
             }
-        },
-        "aggs": {
+        }
+    else:
+        search_query = {"must": {"match_all": {}}}
+
+    # combine the filters and search query with a bool
+    bool_query = {"bool": {**search_query, **filters}}
+
+    # neural query setup with filters
+    model_id = ops.get_model_id("huggingface/sentence-transformers/all-MiniLM-L6-v2")
+    neural_query = {
+        "bool": {
+            "must": {
+                "neural": {
+                    "summary_embedding": {
+                        "query_text": parsed_query,
+                        "model_id": model_id,
+                        "k": 50,  # number of results to return
+                    }
+                }
+            },
+            **filters,
+        }
+    }
+
+    # combine both bool queries with a hybrid query
+    hybrid_query = {
+        "hybrid": {
+            "queries": [
+                bool_query,
+                neural_query,
+            ]
+        }
+    }
+
+    results = ops.search(
+        query=hybrid_query,
+        size=5,
+        from_=from_,
+        _source=["name"],
+        aggs={
             "category-agg": {
                 "terms": {
                     "field": "category.keyword",
@@ -79,12 +110,7 @@ def handle_search():
                 },
             },
         },
-        "size": 5,
-        "from_": from_,
-    }
-
-    # Execute the search
-    results = ops.search(**query_body)
+    )
 
     # Process aggregations
     aggs = {
@@ -107,61 +133,65 @@ def handle_search():
         total=results['hits']['total']['value'],
         aggs=aggs
     )
-    # if parsed_query:
-    #     search_query = {
-    #         'must': {
-    #             'multi_match': {
-    #                 'query': parsed_query,
-    #                 'fields': ['name', 'summary', 'content']
-    #             }
-    #         }
-    #     }
-    # else:
-    #     search_query = {
-    #         'must': {
-    #             'match_all': {}
-    #         }
-    #     }
-    # results = ops.search(
-    #     query={
-    #         'bool': {
-    #             **search_query,
-    #             **filters
-    #         }
-    #     },
-    #     aggs={
-    #         'category-agg': {
-    #             'terms': {
-    #                 'field': 'category.keyword',
-    #             }
-    #         },
-    #         'year-agg': {
-    #             'date_histogram': {
-    #                 'field': 'updated_at',
-    #                 'calendar_interval': 'year',
-    #                 'format': 'yyyy',
-    #             },
-    #         },
-    #     },
-    #     size=5,
-    #     from_=from_
-    # )
-    # aggs={
-    #     'Category': {
-    #         bucket['key']: bucket['doc_count']
-    #         for bucket in results['aggregations']['category-agg']['buckets']
-    #     },
-    #     'Year': {
-    #         bucket['key_as_string']: bucket['doc_count']
-    #         for bucket in results['aggregations']['year-agg']['buckets']
-    #         if bucket['doc_count'] > 0
-    #     },
-    # }
-    # return render_template('index.html', 
-    #                        results=results['hits']['hits'], 
-    #                        query=query, from_=from_, 
-    #                        total=results['hits']['total']['value'],
-    #                        aggs=aggs)
+
+
+# # Uncomment the following code if you want to use the multi_match query
+#     if parsed_query:
+#         search_query = {
+#             'must': {
+#                 'multi_match': {
+#                     'query': parsed_query,
+#                     'fields': ['name', 'summary', 'content']
+#                 }
+#             }
+#         }
+#     else:
+#         search_query = {
+#             'must': {
+#                 'match_all': {}
+#             }
+#         }
+#     results = ops.search(
+#         query={
+#             'bool': {
+#                 **search_query,
+#                 **filters
+#             }
+#         },
+        
+#         aggs={
+#             'category-agg': {
+#                 'terms': {
+#                     'field': 'category.keyword',
+#                 }
+#             },
+#             'year-agg': {
+#                 'date_histogram': {
+#                     'field': 'updated_at',
+#                     'calendar_interval': 'year',
+#                     'format': 'yyyy',
+#                 },
+#             },
+#         },
+#         size=5,
+#         from_=from_
+#     )
+#     aggs={
+#         'Category': {
+#             bucket['key']: bucket['doc_count']
+#             for bucket in results['aggregations']['category-agg']['buckets']
+#         },
+#         'Year': {
+#             bucket['key_as_string']: bucket['doc_count']
+#             for bucket in results['aggregations']['year-agg']['buckets']
+#             if bucket['doc_count'] > 0
+#         },
+#     }
+#     return render_template('index.html', 
+#                            results=results['hits']['hits'], 
+#                            query=query, from_=from_, 
+#                            total=results['hits']['total']['value'],
+#                            aggs=aggs)
 
 @app.get('/document/<id>')
 def get_document(id):
