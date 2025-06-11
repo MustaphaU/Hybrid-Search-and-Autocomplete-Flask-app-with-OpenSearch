@@ -82,7 +82,7 @@ def handle_search():
                 **filters,
             }
         }
-        # combine the lex and neural queries with a hybrid query
+        # combine the lexical and neural queries with a hybrid query
         search_query = {
             "hybrid": {
 				"queries": [
