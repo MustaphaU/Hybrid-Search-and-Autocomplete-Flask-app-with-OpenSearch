@@ -48,7 +48,7 @@ def handle_search():
     filters, parsed_query = extract_filters(query)
     from_ = request.form.get("from_", type=int, default=0)
 
-    if parsed_query:
+    if parsed_query.strip():
         lex_query = {
             "bool": {
                 "must": [
@@ -82,25 +82,22 @@ def handle_search():
                 **filters,
             }
         }
-        search_query = {**lex_query, **neural_query}
+        # combine the lex and neural queries with a hybrid query
+        search_query = {
+            "hybrid": {
+				"queries": [
+					lex_query,
+					neural_query,
+				],
+				"pagination_depth": 50,  # needed for hybrid queries. It specifies the maximum number of search results to retrieve from each shard for every subquery.
+			}
+		}
     else:
-        search_query = {"bool": {"must": [{"match_all": {}}]}}
+        search_query = {"bool": {"must": [{"match_all": {}}], **filters}}
 
-    # # combine the filters and search query with a bool
-    # bool_query = {"bool": {**search_query, **filters}}
-
-    # combine both bool queries with a hybrid query
-    hybrid_query = {
-        "hybrid": {
-            "queries": [
-                search_query,
-            ],
-            "pagination_depth": 50,  # needed for hybrid queries. It specifies the maximum number of search results to retrieve from each shard for every subquery.
-        }
-    }
 
     results = ops.search(
-        query=hybrid_query,
+        query=search_query,
         aggs={
             "category-agg": {
                 "terms": {
