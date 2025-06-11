@@ -90,7 +90,7 @@ class Search:
         if "from_" in query_args:
             query_args["from"] = query_args["from_"]
             del query_args["from_"]
-        return self.ops.search(index="my_documents", body=json.dumps(query_args))
+        return self.ops.search(index="my_documents", body=query_args, params= {"search_pipeline": "rrf-pipeline"})
 
     def retrieve_document(self, id):
         return self.ops.get(index="my_documents", id=id)

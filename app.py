@@ -134,65 +134,6 @@ def handle_search():
         aggs=aggs
     )
 
-
-# # Uncomment the following code if you want to use the multi_match query
-#     if parsed_query:
-#         search_query = {
-#             'must': {
-#                 'multi_match': {
-#                     'query': parsed_query,
-#                     'fields': ['name', 'summary', 'content']
-#                 }
-#             }
-#         }
-#     else:
-#         search_query = {
-#             'must': {
-#                 'match_all': {}
-#             }
-#         }
-#     results = ops.search(
-#         query={
-#             'bool': {
-#                 **search_query,
-#                 **filters
-#             }
-#         },
-        
-#         aggs={
-#             'category-agg': {
-#                 'terms': {
-#                     'field': 'category.keyword',
-#                 }
-#             },
-#             'year-agg': {
-#                 'date_histogram': {
-#                     'field': 'updated_at',
-#                     'calendar_interval': 'year',
-#                     'format': 'yyyy',
-#                 },
-#             },
-#         },
-#         size=5,
-#         from_=from_
-#     )
-#     aggs={
-#         'Category': {
-#             bucket['key']: bucket['doc_count']
-#             for bucket in results['aggregations']['category-agg']['buckets']
-#         },
-#         'Year': {
-#             bucket['key_as_string']: bucket['doc_count']
-#             for bucket in results['aggregations']['year-agg']['buckets']
-#             if bucket['doc_count'] > 0
-#         },
-#     }
-#     return render_template('index.html', 
-#                            results=results['hits']['hits'], 
-#                            query=query, from_=from_, 
-#                            total=results['hits']['total']['value'],
-#                            aggs=aggs)
-
 @app.get('/document/<id>')
 def get_document(id):
     document = ops.retrieve_document(id)
