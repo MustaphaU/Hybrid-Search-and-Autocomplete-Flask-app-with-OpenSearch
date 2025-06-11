@@ -73,7 +73,7 @@ def handle_search():
                     "summary_embedding": {
                         "query_text": parsed_query,
                         "model_id": model_id,
-                        "k": 50,  # number of results to return
+                        "k": 10,  # number of results to return
                     }
                 }
             },
@@ -87,15 +87,13 @@ def handle_search():
             "queries": [
                 bool_query,
                 neural_query,
-            ]
+            ],
+            "pagination_depth": 50,  #needed for hybrid queries. It specifies the maximum number of search results to retrieve from each shard for every subquery.
         }
     }
 
     results = ops.search(
         query=hybrid_query,
-        size=5,
-        from_=from_,
-        _source=["name"],
         aggs={
             "category-agg": {
                 "terms": {
@@ -110,6 +108,8 @@ def handle_search():
                 },
             },
         },
+		size=5,
+        from_=from_,
     )
 
     # Process aggregations
