@@ -14,7 +14,7 @@ def index():
 def extract_filters(query):
     filters = []
 
-    category_regex = r"category:([^\s]+)\s*"
+    category_regex = r"category:([^\s]+)\s*" #matches like "category:books" because of the \s* at the end which allows for optional whitespace after the category
     matches = re.search(category_regex, query)
     if matches:
         filters.append({"term": {"category.keyword": {"value": matches.group(1)}}})
@@ -66,6 +66,8 @@ def handle_search():
         model_id = ops.get_model_id(
             "amazon/neural-sparse/opensearch-neural-sparse-encoding-v2-distill"
         )
+        print(f"Using model ID: {model_id}")
+        
         neural_query = {
             "bool": {
                 "must": [
@@ -73,8 +75,7 @@ def handle_search():
                         "neural": {
                             "summary_sparse_embedding": {
                                 "query_text": parsed_query,
-                                "model_id": model_id,
-                                "k": 10,  # number of results to return
+                                "model_id": model_id,               
                             }
                         }
                     }
