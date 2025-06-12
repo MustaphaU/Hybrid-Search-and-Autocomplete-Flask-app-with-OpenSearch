@@ -49,7 +49,7 @@ class Search:
         self.ops.indices.delete(index="my_documents", ignore_unavailable=True)
         self.ops.indices.create(
             index="my_documents",
-            body={
+            body={ 
                 "settings": {
                     "index.knn": True,
                     "default_pipeline": "embedding-ingest-pipeline-l6mini",
