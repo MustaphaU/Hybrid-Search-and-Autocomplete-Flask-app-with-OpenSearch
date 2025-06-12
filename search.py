@@ -51,6 +51,7 @@ class Search:
             index="my_documents",
             body={ 
                 "settings": {
+                    "index.knn": True,
                     "default_pipeline": "hybrid-ingest-pipeline",
                 },
                 "mappings": {
