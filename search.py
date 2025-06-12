@@ -51,8 +51,7 @@ class Search:
             index="my_documents",
             body={ 
                 "settings": {
-                    "index.knn": True,
-                    "default_pipeline": "embedding-ingest-pipeline-l6mini",
+                    "default_pipeline": "hybrid-ingest-pipeline",
                 },
                 "mappings": {
                     "properties": {
