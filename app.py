@@ -64,14 +64,14 @@ def handle_search():
         }
         # neural query setup with filters
         model_id = ops.get_model_id(
-            "huggingface/sentence-transformers/all-MiniLM-L6-v2"
+            "amazon/neural-sparse/opensearch-neural-sparse-encoding-v2-distill"
         )
         neural_query = {
             "bool": {
                 "must": [
                     {
                         "neural": {
-                            "summary_embedding": {
+                            "summary_sparse_embedding": {
                                 "query_text": parsed_query,
                                 "model_id": model_id,
                                 "k": 10,  # number of results to return
