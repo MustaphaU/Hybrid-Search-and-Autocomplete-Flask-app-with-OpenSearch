@@ -56,7 +56,7 @@ class Search:
                 },
                 "mappings": {
                     "properties": {
-                        "summary_embedding": {
+                        "summary_dense_embedding": {
                             "type": "knn_vector",
                             "dimension": 384,
                             "method": {
@@ -64,6 +64,9 @@ class Search:
                                 "space_type": "cosinesimil",
                                 "engine": "lucene",
                             },
+                        },
+                        "summary_sparse_embedding": {
+                            "type": "rank_features",
                         }
                     }
                 },
