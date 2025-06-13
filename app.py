@@ -71,7 +71,7 @@ def handle_search():
             "bool": {
                 "must": [
                     {
-                        "neural": {
+                        "neural_sparse": {
                             "summary_sparse_embedding": {
                                 "query_text": parsed_query,
                                 "model_id": model_id,               
