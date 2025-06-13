@@ -64,7 +64,7 @@ def handle_search():
         }
         # neural query setup with filters
         model_id = ops.get_model_id(
-            "amazon/neural-sparse/opensearsch-neural-sparse-encoding-v2-distill"
+            "amazon/neural-sparse/opensearch-neural-sparse-encoding-v2-distill"
         )
         
         neural_query = {
