@@ -155,3 +155,30 @@ def reindex():
         f"Index with {len(response['items'])} documents created "
         f"in {response['took']} milliseconds"
     )
+
+#for update cluster settings
+@app.cli.command()
+def update_cluster_settings():
+    """Update cluster settings to enable model management"""
+    try:
+        ops.update_cluster_settings()
+    except Exception as exc:
+        print(f"Error updating cluster settings: {exc}")
+    else:
+        print("Cluster settings updated to enable model management.")
+
+@app.cli.command()
+def deploy_models():
+    """Deploy models to the Opensearch cluster"""
+    try:
+        ops.deploy_models()
+    except Exception as exc:
+        print(f"Error deploying models: {exc}")
+
+@app.cli.command()
+def create_pipelines():
+    """Create pipelines for the Opensearch cluster"""
+    try:
+        ops.create_pipelines()
+    except Exception as exc:
+        print(f"Error creating pipelines: {exc}")

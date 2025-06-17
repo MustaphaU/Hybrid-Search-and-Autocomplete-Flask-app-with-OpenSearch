@@ -27,29 +27,238 @@ class Search:
         print("Connected to Opensearch!")
         pprint(client_info)
 
-    def get_model_id(self, model_name):
-        models = self.ops.transport.perform_request("GET", "/_plugins/_ml/models/_search", 
+    # update cluster settings to enable model
+    def update_cluster_settings(self):
+        self.ops.cluster.put_settings(
             body={
-                "query": {
-                    "term": {
-                        "name.keyword": model_name
-                    }
+                "persistent": {
+                    "plugins.ml_commons.only_run_on_ml_node": False,
+                    "plugins.ml_commons.model_access_control_enabled": True,
+                    "plugins.ml_commons.native_memory_threshold": "99",
+                    "plugins.ml_commons.model_auto_redeploy.enable": True,
+                    "plugins.ml_commons.model_auto_redeploy.lifetime_retry_times": 3,
+                }
+            }
+        )
+        print("Cluster settings updated to enable model management.")
+
+    # register model group
+    def register_model_group(
+        self,
+        name="Model_Group",
+        description="Public ML Model Group",
+        access_mode="public",
+    ):
+        # Check if model group already exists
+        existing_groups = self.ops.transport.perform_request(
+            "GET",
+            "/_plugins/_ml/model_groups/_search",
+            body={
+                "query": {"term": {"name.keyword": name}},
+                "_source": ["model_group_id"],
+                "size": 1,
+            },
+        )
+        if existing_groups["hits"]["hits"]:
+            model_group_id = existing_groups["hits"]["hits"][0]["_id"]
+            print(f"Model group '{name}' already exists with ID: {model_group_id}")
+            return model_group_id
+        else:
+            print(f"Registering new model group '{name}'...")
+            response = self.ops.transport.perform_request(
+                "POST",
+                "/_plugins/_ml/model_groups/_register",
+                body={
+                    "name": name,
+                    "description": description,
+                    "access_mode": access_mode,
                 },
+            )
+            print(f"Model group '{name}' registered.")
+            model_group_id = response["model_group_id"]
+            print(f"Model group ID: {model_group_id}")
+            return model_group_id  # to be changed later
+
+    def get_model_id(self, model_name):
+        models = self.ops.transport.perform_request(
+            "GET",
+            "/_plugins/_ml/models/_search",
+            body={
+                "query": {"term": {"name.keyword": model_name}},
                 "_source": ["model_id"],
                 "size": 1,
-            }
+            },
         )
 
         if models["hits"]["hits"]:
-            return models["hits"]["hits"][0]["_source"]["model_id"] 
+            return models["hits"]["hits"][0]["_source"]["model_id"]
         else:
             raise ValueError(f"{model_name} model not found.")
+
+    # deploy "huggingface/sentence-transformers/all-MiniLM-L6-v2" and "amazon/neural-sparse/opensearch-neural-sparse-encoding-v2-distill"
+    def deploy_models(self):
+        model_group_id = self.register_model_group()
+        sparse_model_name = (
+            "amazon/neural-sparse/opensearch-neural-sparse-encoding-v2-distill"
+        )
+        dense_model_name = "huggingface/sentence-transformers/all-MiniLM-L6-v2"
+        model_names = [sparse_model_name, dense_model_name]
+        model_configs = {sparse_model_name: "1.0.0", dense_model_name: "1.0.2"}
+        sparse_model_id = None
+        dense_model_id = None
+        try:
+            sparse_model_id = self.get_model_id(sparse_model_name)
+            dense_model_id = self.get_model_id(dense_model_name)
+            # check if models are already deployed
+            sparse_model_is_deployed = (
+                self.ops.transport.perform_request(
+                    "GET", f"/_plugins/_ml/models/{sparse_model_id}"
+                ).get("model_state")
+                == "DEPLOYED"
+            )
+            dense_model_is_deployed = (
+                self.ops.transport.perform_request(
+                    "GET", f"/_plugins/_ml/models/{dense_model_id}"
+                ).get("model_state")
+                == "DEPLOYED"
+            )
+            if sparse_model_is_deployed and dense_model_is_deployed:
+                print("Models are already deployed.")
+                return
+        except Exception as exc:
+            print(exc)
+            # delete models if they exist and IDs are available
+            if sparse_model_id:
+                # undeploy the model first
+                self.ops.transport.perform_request(
+                    "POST", f"/_plugins/_ml/models/{sparse_model_id}/_undeploy"
+                )
+                print(f"Model '{sparse_model_name}' undeployed successfully.")
+                self.ops.transport.perform_request(
+                    "DELETE", f"/_plugins/_ml/models/{sparse_model_id}"
+                )
+            if dense_model_id:
+                # undeploy the model first
+                self.ops.transport.perform_request(
+                    "POST", f"/_plugins/_ml/models/{dense_model_id}/_undeploy"
+                )
+                print(f"Model '{dense_model_name}' undeployed successfully.")
+                self.ops.transport.perform_request(
+                    "DELETE", f"/_plugins/_ml/models/{dense_model_id}"
+                )
+            print("registering and deploying models...")
+            for model_name in model_names:
+                response = self.ops.transport.perform_request(
+                    "POST",
+                    "/_plugins/_ml/models/_register",
+                    body={
+                        "name": model_name,
+                        "version": model_configs[model_name],
+                        "model_group_id": model_group_id,
+                        "model_format": "TORCH_SCRIPT",
+                    },
+                )
+                task_id = response["task_id"]
+                print(
+                    f"task id: {task_id} for model '{model_name}' registration received."
+                )
+                # wait for the model to be registered
+                task_status = None
+                while task_status not in ["COMPLETED", "FAILED"]:
+                    print(
+                        f"Waiting for model '{model_name}' registration to complete..."
+                    )
+                    response = self.ops.transport.perform_request(
+                        "GET", f"/_plugins/_ml/tasks/{task_id}"
+                    )
+                    task_status = response["state"]
+                    print(f"Current task status: {task_status}")
+                    time.sleep(15)
+                if task_status == "COMPLETED":
+                    print(f"Model '{model_name}' registered successfully.")
+                    model_id = response["model_id"]
+                    # deploy the model
+                    deploy_response = self.ops.transport.perform_request(
+                        "POST", f"/_plugins/_ml/models/{model_id}/_deploy"
+                    )
+                    deploy_task_id = deploy_response["task_id"]
+                    print(
+                        f"task id: {deploy_task_id} for model '{model_name}' deployment received."
+                    )
+                    # wait for the model to be deployed
+                    deploy_task_status = None
+                    while deploy_task_status not in ["COMPLETED", "FAILED"]:
+                        print(
+                            f"Waiting for model '{model_name}' deployment to complete..."
+                        )
+                        deploy_task_status = self.ops.transport.perform_request(
+                            "GET", f"/_plugins/_ml/tasks/{deploy_task_id}"
+                        )["state"]
+                        print(f"Current task status: {deploy_task_status}")
+                        time.sleep(15)
+                    if deploy_task_status == "COMPLETED":
+                        print(f"Model '{model_name}' deployed successfully.")
+                    else:
+                        print(
+                            f"Model '{model_name}' deployment failed. Task status is {deploy_task_status}"
+                        )
+                elif task_status == "FAILED":
+                    print(
+                        f"Model '{model_name}' registration failed. Task status is {task_status}"
+                    )
+                else:
+                    print(
+                        f"Model '{model_name}' registration failed. Task status is {task_status}"
+                    )
+
+    def create_pipelines(self):
+        self.ops.ingest.put_pipeline(
+            id="hybrid-ingest-pipeline",
+            body={
+                "description": "A pipeline of dense and sparse processors",
+                "processors": [
+                    {
+                        "sparse_encoding": {
+                            "model_id": self.get_model_id("amazon/neural-sparse/opensearch-neural-sparse-encoding-v2-distill"),
+                            "field_map": {"summary": "summary_sparse_embedding"},
+                        }
+                    },
+                    {
+                        "text_embedding": {
+                            "model_id": self.get_model_id("huggingface/sentence-transformers/all-MiniLM-L6-v2"),
+                            "field_map": {"summary": "summary_dense_embedding"},
+                        }
+                    },
+                ],
+            },
+        )
+        print(
+            "Hybrid ingest pipeline created with dense and sparse embedding processors."
+        )
+        #rrf pipeline
+        self.ops.transport.perform_request(
+            "PUT",
+            "/_search/pipeline/rrf-pipeline",
+            body={
+                "description": "Post processor for hybrid RRF search",
+                "phase_results_processors": [
+                    {
+                        "score-ranker-processor": {
+                            "combination": {
+                                "technique": "rrf"
+                            }
+                        }
+                    }
+                ],
+            },
+        )
+        print("RRF search pipeline created.")
 
     def create_index(self):
         self.ops.indices.delete(index="my_documents", ignore_unavailable=True)
         self.ops.indices.create(
             index="my_documents",
-            body={ 
+            body={
                 "settings": {
                     "index.knn": True,
                     "default_pipeline": "hybrid-ingest-pipeline",
@@ -67,7 +276,7 @@ class Search:
                         },
                         "summary_sparse_embedding": {
                             "type": "rank_features",
-                        }
+                        },
                     }
                 },
             },
@@ -94,7 +303,11 @@ class Search:
             query_args["from"] = query_args["from_"]
             del query_args["from_"]
         print(f"query args: {query_args}")
-        return self.ops.search(index="my_documents", body=query_args, params= {"search_pipeline": "rrf-pipeline"})
+        return self.ops.search(
+            index="my_documents",
+            body=query_args,
+            params={"search_pipeline": "rrf-pipeline"},
+        )
 
     def retrieve_document(self, id):
         return self.ops.get(index="my_documents", id=id)
