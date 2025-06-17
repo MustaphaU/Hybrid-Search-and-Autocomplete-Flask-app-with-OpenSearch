@@ -98,6 +98,7 @@ class Search:
     # deploy "huggingface/sentence-transformers/all-MiniLM-L6-v2" and "amazon/neural-sparse/opensearch-neural-sparse-encoding-v2-distill"
     def deploy_models(self):
         model_group_id = self.register_model_group()
+        print(f"Model group ID: {model_group_id}")
         sparse_model_name = (
             "amazon/neural-sparse/opensearch-neural-sparse-encoding-v2-distill"
         )
@@ -108,23 +109,20 @@ class Search:
         dense_model_id = None
         try:
             sparse_model_id = self.get_model_id(sparse_model_name)
+            print(f"Sparse model ID: {sparse_model_id}")
             dense_model_id = self.get_model_id(dense_model_name)
+            print(f"Dense model ID: {dense_model_id}")
             # check if models are already deployed
-            sparse_model_is_deployed = (
-                self.ops.transport.perform_request(
-                    "GET", f"/_plugins/_ml/models/{sparse_model_id}"
-                ).get("model_state")
-                == "DEPLOYED"
-            )
-            dense_model_is_deployed = (
-                self.ops.transport.perform_request(
-                    "GET", f"/_plugins/_ml/models/{dense_model_id}"
-                ).get("model_state")
-                == "DEPLOYED"
-            )
+            sparse_model_is_deployed = (self.ops.transport.perform_request("GET", f"/_plugins/_ml/models/{sparse_model_id}").get("model_state")== "DEPLOYED")
+            print(f"Sparse model is deployed: {sparse_model_is_deployed}")
+            dense_model_is_deployed = (self.ops.transport.perform_request("GET", f"/_plugins/_ml/models/{dense_model_id}").get("model_state")== "DEPLOYED")
+            print(f"Dense model is deployed: {dense_model_is_deployed}")
             if sparse_model_is_deployed and dense_model_is_deployed:
                 print("Models are already deployed.")
                 return
+            else:
+                #error out so that we can move to the except block
+                raise Exception("Models are not deployed.")
         except Exception as exc:
             print(exc)
             # delete models if they exist and IDs are available

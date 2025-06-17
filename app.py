@@ -164,8 +164,6 @@ def update_cluster_settings():
         ops.update_cluster_settings()
     except Exception as exc:
         print(f"Error updating cluster settings: {exc}")
-    else:
-        print("Cluster settings updated to enable model management.")
 
 @app.cli.command()
 def deploy_models():
