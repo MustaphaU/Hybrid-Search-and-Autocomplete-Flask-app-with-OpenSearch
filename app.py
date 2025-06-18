@@ -1,5 +1,5 @@
 import re
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from search import Search
 
 app = Flask(__name__)
@@ -14,7 +14,7 @@ def index():
 def extract_filters(query):
     filters = []
 
-    category_regex = r"category:([^\s]+)\s*" #matches like "category:books" because of the \s* at the end which allows for optional whitespace after the category
+    category_regex = r"category:([^\s]+)\s*"  # matches like "category:books" because of the \s* at the end which allows for optional whitespace after the category
     matches = re.search(category_regex, query)
     if matches:
         filters.append({"term": {"category.keyword": {"value": matches.group(1)}}})
@@ -66,7 +66,7 @@ def handle_search():
         model_id = ops.get_model_id(
             "amazon/neural-sparse/opensearch-neural-sparse-encoding-v2-distill"
         )
-        
+
         neural_query = {
             "bool": {
                 "must": [
@@ -74,7 +74,7 @@ def handle_search():
                         "neural_sparse": {
                             "summary_sparse_embedding": {
                                 "query_text": parsed_query,
-                                "model_id": model_id,               
+                                "model_id": model_id,
                             }
                         }
                     }
@@ -85,16 +85,15 @@ def handle_search():
         # combine the lexical and neural queries with a hybrid query
         search_query = {
             "hybrid": {
-				"queries": [
-					lex_query,
-					neural_query,
-				],
-				"pagination_depth": 50,  # needed for hybrid queries. It specifies the maximum number of search results to retrieve from each shard for every subquery.
-			}
-		}
+                "queries": [
+                    lex_query,
+                    neural_query,
+                ],
+                "pagination_depth": 50,  # needed for hybrid queries. It specifies the maximum number of search results to retrieve from each shard for every subquery.
+            }
+        }
     else:
         search_query = {"bool": {"must": [{"match_all": {}}], **filters}}
-
 
     results = ops.search(
         query=search_query,
@@ -139,6 +138,94 @@ def handle_search():
     )
 
 
+# route for autocomplete suggestions
+@app.route("/autocomplete", methods=["POST"])
+def autocomoplete():
+    search_term = request.form.get("query", "")
+    size = 10
+    collapse_size = 5
+    query_args = {
+        "from": 0,
+        "size": size,
+        "query": {
+            "dis_max": {
+                "queries": [
+                    {
+                        "match_bool_prefix": {
+                            "name": {"query": search_term, "boost": 1.2}
+                        }
+                    },
+                    {"match_bool_prefix": {"category": search_term}},
+                    {
+                        "match_bool_prefix": {
+                            "summary": {"query": search_term, "boost": 0.6}
+                        }
+                    },
+                    {"match_bool_prefix": {"content": search_term}},
+                ],
+                "tie_breaker": 0.7,
+            }
+        },
+        "fields": ["name", "category", "summary", "content"],
+        "_source": False,
+        "collapse": {
+            "field": "category.keyword",
+            "inner_hits": {
+                "name": "category_hits",
+                "size": collapse_size,
+                "fields": ["name"],
+                "_source": False,
+            },
+        },
+    }
+
+    results =ops.search(**query_args)
+
+    # Post-process results to ensure diverse categories
+    total_hits = results["hits"]["total"]["value"]
+    cats_with_hits = len(results["hits"]["hits"])
+    avg_hits_cat = int(size / cats_with_hits) if cats_with_hits > 0 else 0
+    hits_for_cats = []
+    accum_hits = 0
+    cats_with_more = 0
+
+    for item in results["hits"]["hits"]:
+        cat_hits = item["inner_hits"]["category_hits"]["hits"]["total"]["value"]
+        if cat_hits > avg_hits_cat:
+            cats_with_more += 1
+        hits_this_cat = min(cat_hits, avg_hits_cat)
+        hits_for_cats.append([cat_hits, hits_this_cat])
+    
+    if accum_hits < size and cats_with_more:
+        more_each = int((size - accum_hits) / cats_with_more)
+        for counts in hits_for_cats:
+            more_this_cat = min(more_each, counts[0] - counts[1])
+            accum_hits += more_this_cat
+            counts[1] += more_this_cat
+
+    found_items = []
+
+    for idx, item in enumerate(results["hits"]["hits"]):
+        cat_hits = item["inner_hits"]["category_hits"]["hits"]["hits"]
+
+        if accum_hits < size and hits_for_cats[idx][1] < hits_for_cats[idx][0]:
+            to_add = min(size - accum_hits, hits_for_cats[idx][0] - hits_for_cats[idx][1])
+            hits_for_cats[idx][1] += to_add
+            accum_hits += to_add
+
+        added = 0
+        for hit in cat_hits:
+            found_items.append({
+                'itemId': hit['_id'],
+                'name': hit['fields'].get('name', [None])[0],
+                'category': item['fields'].get('category', [None])[0],
+            })
+            added += 1
+            if added == hits_for_cats[idx][1]:
+                break
+    return jsonify(found_items)
+
+
 @app.get("/document/<id>")
 def get_document(id):
     document = ops.retrieve_document(id)
@@ -156,7 +243,8 @@ def reindex():
         f"in {response['took']} milliseconds"
     )
 
-#for update cluster settings
+
+# for update cluster settings
 @app.cli.command()
 def update_cluster_settings():
     """Update cluster settings to enable model management"""
@@ -165,6 +253,7 @@ def update_cluster_settings():
     except Exception as exc:
         print(f"Error updating cluster settings: {exc}")
 
+
 @app.cli.command()
 def deploy_models():
     """Deploy models to the Opensearch cluster"""
@@ -172,6 +261,7 @@ def deploy_models():
         ops.deploy_models()
     except Exception as exc:
         print(f"Error deploying models: {exc}")
+
 
 @app.cli.command()
 def create_pipelines():
