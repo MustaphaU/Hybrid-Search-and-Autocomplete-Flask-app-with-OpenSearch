@@ -53,7 +53,7 @@
         }
     });
 
-    // Keyboard navigation
+    // up/down arrrow key navigation
     input.addEventListener('keydown', function (e) {
         const items = dropdown.querySelectorAll('.dropdown-item');
         let idx = Array.from(items).findIndex(item => item.classList.contains('active'));
