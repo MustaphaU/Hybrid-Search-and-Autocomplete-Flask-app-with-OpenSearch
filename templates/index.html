@@ -34,7 +34,7 @@
         }
         suggestions.forEach(s => {
             const li = document.createElement('li');
-            li.classNmae = "dropdown-item";
+            li.className = "dropdown-item";
             li.innerHTML = `<strong>${s.name || ""}</strong> <small class="text-muted">${s.category || ""}</small>`;
             li.style.cursor = "pointer";
             li.onclick = () => {
@@ -56,7 +56,7 @@
     // Keyboard navigation
     input.addEventListener('keydown', function (e) {
         const items = dropdown.querySelectorAll('.dropdown-item');
-        let idx = Array.from(items).findIndex(item => item.classlist.contains('active'));
+        let idx = Array.from(items).findIndex(item => item.classList.contains('active'));
         if (e.key === "ArrowDown") {
             if (idx < items.length - 1) idx++;
             else idx = 0;
