@@ -151,9 +151,9 @@ def autocomplete():
             "dis_max": {
                 "queries": [
                     {"match_bool_prefix": {"name": {"query": search_term, "boost": 1.2}}},
-                    {"match_bool_prefix": {"category": {"query": search_term, "boost": 0.001}}},
-                    {"match_bool_prefix": {"summary": {"query": search_term, "boost": 0.001}}},
-                    {"match_bool_prefix": {"content": {"query": search_term, "boost": 0.001}}},
+                    {"match_bool_prefix": {"category": {"query": search_term}}},
+                    {"match_bool_prefix": {"summary": {"query": search_term}}},
+                    {"match_bool_prefix": {"content": {"query": search_term, "boost": 0.5}}},
                 ],
                 "tie_breaker": 0.7,
             }
