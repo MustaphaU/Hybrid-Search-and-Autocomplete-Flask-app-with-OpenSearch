@@ -61,13 +61,19 @@
             if (idx < items.length - 1) idx++;
             else idx = 0;
             items.forEach(item => item.classList.remove('active'));
-            if (items[idx]) items[idx].classList.add('active');
+            if (items[idx]) {
+                items[idx].classList.add('active');
+                items[idx].scrollIntoView({ block: 'nearest' });
+            }
             e.preventDefault();
         } else if (e.key === "ArrowUp") {
             if (idx > 0) idx--;
             else idx = items.length - 1;
             items.forEach(item => item.classList.remove('active'));
-            if (items[idx]) items[idx].classList.add('active');
+            if (items[idx]) {
+                items[idx].classList.add('active');
+                items[idx].scrollIntoView({ block: 'nearest' });
+            }
             e.preventDefault();
         } else if (e.key === "Enter" && idx !== -1) {
             items[idx].click();
