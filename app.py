@@ -140,7 +140,7 @@ def handle_search():
 
 # route for autocomplete suggestions
 @app.route("/autocomplete", methods=["POST"])
-def autocomoplete():
+def autocomplete():
     search_term = request.form.get("query", "")
     size = 10
     collapse_size = 5

@@ -13,7 +13,7 @@ class Search:
     def __init__(self):
         self.ops = OpenSearch(
             hosts=[{"host": "localhost", "port": 19200}],
-            http_compress=True,  # enables gzip compression for request bodies
+            http_compress=True,
             http_auth=(
                 os.getenv("OPENSEARCH_ADMIN_USER"),
                 os.getenv("OPENSEARCH_INITIAL_ADMIN_PASSWORD"),
@@ -233,7 +233,7 @@ class Search:
         print(
             "Hybrid ingest pipeline created with dense and sparse embedding processors."
         )
-        #rrf pipeline
+        #rrf search pipeline
         self.ops.transport.perform_request(
             "PUT",
             "/_search/pipeline/rrf-pipeline",
