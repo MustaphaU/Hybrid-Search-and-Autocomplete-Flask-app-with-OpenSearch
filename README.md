@@ -16,9 +16,12 @@ This project demonstrates a hybrid search application that combines traditional 
 
 
 ## Usage
-1. Start by cloning the project
-```bash
-git clone 
-```
+1. Start Docker or ensure it's running
+1. Clone the project
+    ```bash
+    git clone https://github.com/MustaphaU/opesearch-projects.git
+    ```
+2. 
+
 
 
