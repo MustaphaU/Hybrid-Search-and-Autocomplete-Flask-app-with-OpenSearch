@@ -86,4 +86,4 @@ This project is a simple OpenSearch hybrid search application that combines trad
     ```
 
 ## Demo
-[Watch the Demo here](static/Demo.mp4)
+[Watch the Demo here](https://youtu.be/N-DGa1QUr9g)
