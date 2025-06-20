@@ -16,7 +16,7 @@ This project demonstrates a hybrid search application that combines traditional 
 
 
 ## Usage
-1. Start Docker or ensure it's running.
+1. Start your Docker app or ensure it's running.
 2. Clone the project and navigate to the project's root directory.
     ```bash
     git clone https://github.com/MustaphaU/opensearch-hybrid-search.git && cd opensearch-hybrid-search
@@ -26,16 +26,31 @@ This project demonstrates a hybrid search application that combines traditional 
     conda create -y -n opensearch_env python=3.12
     conda activate opensearch_env
     ```
-4. Save your cluster password to an environment variable.   
-    Replace `{your password here}` with your intended password and run the resulting command in your terminal. A valid password must contain alphanumeric characters and a symbol. For example,  
+4. Set the OPENSEARCH_INITIAL_ADMIN_PASSWORD to a strong password.   
+    * Replace `{yourStrongPassword123!}` with your intended password and run the resulting command in your terminal.  
+    * A valid password must contain a mix of upper and lower case alphanumeric characters and a special character. For example, `Myadminp@ss12321`  
     ```bash
-    export OPENSEARCH_INITIAL_ADMIN_PASSWORD={your password here}
+    export OPENSEARCH_INITIAL_ADMIN_PASSWORD={yourStrongPassword123!}
     ```
 5. Run docker-compose to start OpenSearch in docker (in detached mode).
     ```bash
-    docker compose up -d
+    docker-compose up -d
     ```
-    This executes the instructions in [docker-compose.yaml](docker-compose.yml). It primarily pulls the latest opensearch and opensearch-dashboards images, and starts three containers: two cluster nodes namely `opensearch-node1` and `opensearch-node2` and one opensearch-dashboard named `opensearch-dashboards`.
+    This executes the instructions in [docker-compose.yaml](docker-compose.yml). It primarily pulls the latest opensearch and opensearch-dashboards images, and starts three containers: two opensearch cluster nodes namely `opensearch-node1` and `opensearch-node2` and one opensearch-dashboard named `opensearch-dashboards`.
+    The OPENSEARCH_INITIAL_ADMIN_PASSWORD will be programmatically fetched from your environment.
+
+6. Once the containers successfully start, you can access your opensearch dashboard by opening the url in your browser. 
+Once prompted, enter the default username `Admin` and your *`OPENSEARCH_INITIAL_ADMIN_PASSWORD`*.
+    ```bash
+    http://localhost:5002/
+    ```
+
+
+
+
+
+
+
 
 
 
