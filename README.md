@@ -87,14 +87,3 @@ This project is a simple OpenSearch hybrid search application that combines trad
 
 ## Demo
 [Watch the Demo here](static/Demo.mp4)
-    
-
-
-
-
-
-
-
-
-
-
