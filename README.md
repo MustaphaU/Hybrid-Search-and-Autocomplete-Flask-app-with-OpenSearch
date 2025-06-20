@@ -85,5 +85,5 @@ This project is a simple OpenSearch hybrid search application that combines trad
     flask run
     ```
 
-## Demo
-[![Watch the Demo](https://img.youtube.com/vi/N-DGa1QUr9g/hqdefault.jpg)](https://youtu.be/N-DGa1QUr9g)
+## Demo (*click the image to watch demo*)
+[![Click to watch Demo](https://img.youtube.com/vi/N-DGa1QUr9g/hqdefault.jpg)](https://youtu.be/N-DGa1QUr9g)
