@@ -86,7 +86,7 @@ This project is a simple OpenSearch hybrid search application that combines trad
     ```
 
 ## Demo
-[Loom Video](https://www.loom.com/share/d6f69601f3844fc59b3d0132e47022ad?sid=b70c1af1-cd31-4ccb-944d-264a1b6e5a64)
+[Watch the Demo here](static/Demo.mp4)
     
 
 
