@@ -227,17 +227,6 @@ def get_document(id):
 
 
 @app.cli.command()
-def reindex():
-    """Regenerate the Opensearch index"""
-    response = ops.reindex()
-    print(
-        f"Index with {len(response['items'])} documents created "
-        f"in {response['took']} milliseconds"
-    )
-
-
-# for update cluster settings
-@app.cli.command()
 def update_cluster_settings():
     """Update cluster settings to enable model management"""
     try:
@@ -262,3 +251,12 @@ def create_pipelines():
         ops.create_pipelines()
     except Exception as exc:
         print(f"Error creating pipelines: {exc}")
+
+@app.cli.command()
+def reindex():
+    """Regenerate the Opensearch index"""
+    response = ops.reindex()
+    print(
+        f"Index with {len(response['items'])} documents created "
+        f"in {response['took']} milliseconds"
+    )

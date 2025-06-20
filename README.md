@@ -1,7 +1,7 @@
 # Lexical (BM25) and Neural (Sparse Embeddings) Hybrid Search with Autocomplete Using OpenSearch
 
 ## Description
-This project demonstrates a hybrid search application that combines traditional full-text (lexical/BM25) search with semantic (neural) search using sparse embeddings powered by OpenSearch. It also provides autocomplete functionality for imrpoved user search experience.
+This project is a simple OpenSearch hybrid search application that combines traditional full-text (lexical/BM25) search with semantic (neural) search using sparse embeddings. It also provides autocomplete functionality for an improved search experience.
 
 ### Inspiration:  
 1. This work is an adaptation/extension of the [Elastic Search app](https://github.com/elastic/elasticsearch-labs/tree/main/example-apps/search-tutorial/v3/search-tutorial) in elasticsearch-labs.
@@ -23,30 +23,49 @@ This project demonstrates a hybrid search application that combines traditional 
     ```bash
     git clone https://github.com/MustaphaU/opensearch-hybrid-search.git && cd opensearch-hybrid-search
     ```
-3. Create and activate a conda environment for Python 3.12 (auto-accepting all prompts):
-    ```bash
-    conda create -y -n opensearch_env python=3.12
-    conda activate opensearch_env
-    ```
-4. Set the OPENSEARCH_INITIAL_ADMIN_PASSWORD to a strong password.   
+3. Set the *`OPENSEARCH_INITIAL_ADMIN_PASSWORD`* to a strong password.   
     * Replace `{yourStrongPassword123!}` with your intended password and run the resulting command in your terminal.  
     * A valid password must contain a mix of upper and lower case alphanumeric characters and a special character. For example, `Myadminp@ss12321`  
     ```bash
     export OPENSEARCH_INITIAL_ADMIN_PASSWORD={yourStrongPassword123!}
     ```
-5. Run docker-compose to start OpenSearch in docker (in detached mode).
+4. Run docker-compose to start OpenSearch in docker (in detached mode).
     ```bash
     docker-compose up -d
     ```
     This executes the instructions in [docker-compose.yaml](docker-compose.yml). It primarily pulls the latest opensearch and opensearch-dashboards images, and starts three containers: two opensearch cluster nodes namely `opensearch-node1` and `opensearch-node2` and one opensearch-dashboard named `opensearch-dashboards`.
     The OPENSEARCH_INITIAL_ADMIN_PASSWORD will be programmatically fetched from your environment.
 
-6. Once the containers successfully start, you can access your opensearch dashboard by opening the url in your browser.  
+5. Once the containers successfully start, you can access your opensearch dashboard by opening the url in your browser.  
     * Once prompted to log in, enter the default username `admin` (all lowercase) and the password you set in the `OPENSEARCH_INITIAL_ADMIN_PASSWORD` environment variable.
     ```bash
     http://localhost:5002/
     ```
-7. 
+
+### Setup and start the Search app
+1. Create a **.env** file in the project's root directory and add your *`OPENSEARCH_INITIAL_ADMIN_PASSWORD`* like so (replace password):  
+
+    `opensearch-hybrid-search/.env`
+
+    ```bash
+    OPENSEARCH_INITIAL_ADMIN_PASSWORD={yourStrongPassword123!}
+    ```
+2. Create and activate a conda environment (auto-accepting all prompts):
+    ```bash
+    conda create -y -n opensearch_env python=3.12
+    conda activate opensearch_env
+    ```
+
+3. Install all requirements.
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+4. Update cluster settings to allow model management.
+    ```bash
+    flask update-cluster-settings
+    ```
+    
 
 
 
