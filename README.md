@@ -11,17 +11,31 @@ This project demonstrates a hybrid search application that combines traditional 
 1. OpenSearch is used as the search engine instead of Elasticsearch
 2. A Neural Sparse Encoder, specifically [opensearch-neural-sparse-encoding-v2-distill](https://huggingface.co/opensearch-project/opensearch-neural-sparse-encoding-v2-distill) is used as replacement for Elasticsearch's [Elastic Learned Sparse EncodeR model (ELSER)](https://www.elastic.co/docs/solutions/search/semantic-search/semantic-search-elser-ingest-pipelines#:~:text=Elastic%20Learned%20Sparse%20EncodeR%20%2D%20or%20ELSER%20%2D%20is%20an%20NLP%20model%20trained%20by%20Elastic%20that%20enables%20you%20to%20perform%20semantic%20search%20by%20using%20sparse%20vector%20representation).
 3. Autocompletion has been added.
-4. The search box persists across across all pages.
+4. The search box persists across all pages.
 
 
 
 ## Usage
-1. Start Docker or ensure it's running
-1. Clone the project
+1. Start Docker or ensure it's running.
+2. Clone the project and navigate to the project's root directory.
     ```bash
-    git clone https://github.com/MustaphaU/opesearch-projects.git
+    git clone https://github.com/MustaphaU/opensearch-hybrid-search.git && cd opensearch-hybrid-search
     ```
-2. 
+3. Create and activate a conda environment for Python 3.12 (auto-accepting all prompts):
+    ```bash
+    conda create -y -n opensearch_env python=3.12
+    conda activate opensearch_env
+    ```
+4. Save your cluster password to an environment variable.   
+    Replace `{your password here}` with your intended password and run the resulting command in your terminal. A valid password must contain alphanumeric characters and a symbol. For example,  
+    ```bash
+    export OPENSEARCH_INITIAL_ADMIN_PASSWORD={your password here}
+    ```
+5. Run docker-compose to start OpenSearch in docker (in detached mode).
+    ```bash
+    docker compose up -d
+    ```
+    This executes the instructions in [docker-compose.yaml](docker-compose.yml). It primarily pulls the latest opensearch and opensearch-dashboards images, and starts three containers: two cluster nodes namely `opensearch-node1` and `opensearch-node2` and one opensearch-dashboard named `opensearch-dashboards`.
 
 
 
