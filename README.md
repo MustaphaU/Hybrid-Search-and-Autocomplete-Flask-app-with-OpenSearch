@@ -16,6 +16,8 @@ This project demonstrates a hybrid search application that combines traditional 
 
 
 ## Usage
+
+### Start opensearch locally in docker
 1. Start your Docker app or ensure it's running.
 2. Clone the project and navigate to the project's root directory.
     ```bash
@@ -39,8 +41,8 @@ This project demonstrates a hybrid search application that combines traditional 
     This executes the instructions in [docker-compose.yaml](docker-compose.yml). It primarily pulls the latest opensearch and opensearch-dashboards images, and starts three containers: two opensearch cluster nodes namely `opensearch-node1` and `opensearch-node2` and one opensearch-dashboard named `opensearch-dashboards`.
     The OPENSEARCH_INITIAL_ADMIN_PASSWORD will be programmatically fetched from your environment.
 
-6. Once the containers successfully start, you can access your opensearch dashboard by opening the url in your browser. 
-Once prompted, enter the default username `Admin` and your *`OPENSEARCH_INITIAL_ADMIN_PASSWORD`*.
+6. Once the containers successfully start, you can access your opensearch dashboard by opening the url in your browser.  
+    * Once prompted to log in, enter the default username `admin` (all lowercase) and the password you set in the `OPENSEARCH_INITIAL_ADMIN_PASSWORD` environment variable.
     ```bash
     http://localhost:5002/
     ```
