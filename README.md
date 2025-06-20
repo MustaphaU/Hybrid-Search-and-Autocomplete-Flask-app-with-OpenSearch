@@ -17,7 +17,7 @@ This project is a simple OpenSearch hybrid search application that combines trad
 
 ## Usage
 
-### Start OpenSearch locally in docker
+### Start OpenSearch locally in Docker
 1. Start your Docker app or ensure it's running.
 2. Clone the project and navigate to the project's root directory.
     ```bash
@@ -33,14 +33,25 @@ This project is a simple OpenSearch hybrid search application that combines trad
     ```bash
     docker-compose up -d
     ```
-    This executes the instructions in [docker-compose.yaml](docker-compose.yml). It primarily pulls the latest opensearch and opensearch-dashboards images, and starts three containers: two opensearch cluster nodes namely `opensearch-node1` and `opensearch-node2` and one opensearch-dashboard named `opensearch-dashboards`.
-    The OPENSEARCH_INITIAL_ADMIN_PASSWORD will be programmatically fetched from your environment.
+    This command launches the services defined in [docker-compose.yaml](docker-compose.yml) in detached mode. It will:
 
-5. Once the containers successfully start, you can access your opensearch dashboard by opening the url in your browser.  
-    * Once prompted to log in, enter the default username `admin` (all lowercase) and the password you set in the `OPENSEARCH_INITIAL_ADMIN_PASSWORD` environment variable.
-    ```bash
+    - Pull the latest `opensearch` and `opensearch-dashboards` images.
+    - Start three containers:
+      - Two OpenSearch cluster nodes: `opensearch-node1` and `opensearch-node2`
+      - One dashboard instance: `opensearch-dashboards`
+    - Automatically use the `OPENSEARCH_INITIAL_ADMIN_PASSWORD` from your environment for secure setup.
+
+    Once the containers are running, OpenSearch and its dashboard will be available for use.
+
+5. After the containers have started, access the OpenSearch Dashboards UI by navigating to the following URL in your browser:
+
+    ```
     http://localhost:5002/
     ```
+
+    When prompted, log in with:
+    - **Username:** `admin`
+    - **Password:** The value you set for `OPENSEARCH_INITIAL_ADMIN_PASSWORD`
 
 ### Setup and start the Search app
 1. Create a **.env** file in the project's root directory and add your *`OPENSEARCH_INITIAL_ADMIN_PASSWORD`* like so (replace password):  
@@ -61,23 +72,17 @@ This project is a simple OpenSearch hybrid search application that combines trad
     pip install -r requirements.txt
     ```
 
-4. Update cluster settings for model management.
+4. Run below command to: 
+   * Update cluster settings for model management  
+   * Register and the deploy models  
+   * Create ingest and hybrid search pipelines
+   * Create index and ingest the data
     ```bash
-    flask update-cluster-settings
+    flask update-cluster-settings && flask deploy-models && flask create-pipelines && flask reindex
     ```
-
-5. Register and deploy models
+5. Start the search app
     ```bash
-    flask deploy-models
-    ```
-
-6. Create ingest and hybrid search pipelines
-    ```bash 
-    flask create-pipelines
-    ```
-7. Create an index and ingest the data
-    ```bash
-    flask reindex
+    flask run
     ```
 
 
