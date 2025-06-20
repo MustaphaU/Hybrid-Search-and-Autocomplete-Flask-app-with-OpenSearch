@@ -61,10 +61,26 @@ This project is a simple OpenSearch hybrid search application that combines trad
     pip install -r requirements.txt
     ```
 
-4. Update cluster settings to allow model management.
+4. Update cluster settings for model management.
     ```bash
     flask update-cluster-settings
     ```
+
+5. Register and deploy models
+    ```bash
+    flask deploy-models
+    ```
+
+6. Create ingest and hybrid search pipelines
+    ```bash 
+    flask create-pipelines
+    ```
+7. Create an index and ingest the data
+    ```bash
+    flask reindex
+    ```
+
+
     
 
 
