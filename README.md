@@ -31,11 +31,10 @@ This project is a simple OpenSearch hybrid search application that combines trad
     * A valid password must contain a mix of upper and lower case alphanumeric characters and a special character. For example, `Myadminp@ss12321`  
     ```bash
     export OPENSEARCH_INITIAL_ADMIN_PASSWORD={yourStrongPassword123!}
-    ```
-4. Run docker-compose to start OpenSearch in docker (in detached mode).
-    ```bash
-    docker-compose up -d
-    ```
+    4. Run docker-compose to start OpenSearch in Docker (in detached mode).
+        ```bash
+        docker compose up -d
+        ```
     This command launches the services defined in [docker-compose.yaml](docker-compose.yml) in detached mode. It will:
 
     - Pull the latest `opensearch` and `opensearch-dashboards` images.
