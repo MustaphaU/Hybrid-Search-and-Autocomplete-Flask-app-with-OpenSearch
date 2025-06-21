@@ -4,10 +4,10 @@
 [![Click to watch Demo](https://img.youtube.com/vi/N-DGa1QUr9g/hqdefault.jpg)](https://youtu.be/N-DGa1QUr9g)
 
 ## Description
-This project is a simple OpenSearch hybrid search application that combines traditional full-text (lexical/BM25) search with semantic (neural) search using sparse embeddings. It also provides autocomplete functionality for an improved search experience.
+This project is a simple hybrid search Flask application that integrates traditional full-text (lexical/BM25) search with semantic (neural sparse embeddings) search. It also provides autocomplete functionality for an improved search experience.
 
 ### Inspiration:  
-1. This work is an adaptation/extension of the [Elastic Search app](https://github.com/elastic/elasticsearch-labs/tree/main/example-apps/search-tutorial/v3/search-tutorial) in elasticsearch-labs.
+1. The project is an adaptation/extension of the [Elastic Search app](https://github.com/elastic/elasticsearch-labs/tree/main/example-apps/search-tutorial/v3/search-tutorial) in elasticsearch-labs.
 2. The query for autocomplete and suggestions post-processing is a match_bool_prefix across multiple fields (with a disjunction maximum). It was adapted from the search service implementation in [Amazon retail-demo-store project](https://github.com/aws-samples/retail-demo-store/blob/master/src/search/src/search-service/app.py).
 
 #### *The primary adjustments to the* [Elastic Search app](https://github.com/elastic/elasticsearch-labs/tree/main/example-apps/search-tutorial/v3/search-tutorial) *are:*
@@ -17,8 +17,12 @@ This project is a simple OpenSearch hybrid search application that combines trad
 4. The search box persists across the pages.
 
 
+## Primary tools/resources:
+* OpenSearch
+* Docker
+* Flask
 
-## Usage
+## Usage Instructions
 
 ### Start OpenSearch locally in Docker
 1. Start your Docker app or ensure it's running.
