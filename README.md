@@ -1,5 +1,8 @@
 # An OpenSearch Flask app for Hybrid Search [ Lexical (BM25) and Neural Sparse Embeddings search ] and Autocompletions.
 
+## Demo (*click the image to watch demo*)
+[![Click to watch Demo](https://img.youtube.com/vi/N-DGa1QUr9g/hqdefault.jpg)](https://youtu.be/N-DGa1QUr9g)
+
 ## Description
 This project is a simple OpenSearch hybrid search application that combines traditional full-text (lexical/BM25) search with semantic (neural) search using sparse embeddings. It also provides autocomplete functionality for an improved search experience.
 
@@ -84,6 +87,3 @@ This project is a simple OpenSearch hybrid search application that combines trad
     ```bash
     flask run
     ```
-
-## Demo (*click the image to watch demo*)
-[![Click to watch Demo](https://img.youtube.com/vi/N-DGa1QUr9g/hqdefault.jpg)](https://youtu.be/N-DGa1QUr9g)
