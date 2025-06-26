@@ -82,14 +82,14 @@ def handle_search():
                 **filters,
             }
         }
-        # combine the lexical and neural queries with a hybrid query
+        # combine the lexical and neural queries in a hybrid query
         search_query = {
             "hybrid": {
                 "queries": [
                     lex_query,
                     neural_query,
                 ],
-                "pagination_depth": 50,  # needed for hybrid queries. It specifies the maximum number of search results to retrieve from each shard for every subquery.
+                "pagination_depth": 50,  #It specifies the maximum number of search results to retrieve from each shard for every subquery.
             }
         }
     else:
