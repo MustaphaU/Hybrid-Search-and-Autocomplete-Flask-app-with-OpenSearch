@@ -1,4 +1,4 @@
-# An OpenSearch Flask app for Hybrid Search [ Lexical (BM25) and Neural Sparse Embeddings search ] and Autocompletions.
+# OpenSearch Flask app for Hybrid Search (lexical and semantic) and Autocomplete.
 
 ## Demo
 Click the play button in the top right corner of the GIF to view the demo.
