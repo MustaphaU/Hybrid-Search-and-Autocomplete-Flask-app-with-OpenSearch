@@ -19,14 +19,14 @@ This project is a hybrid search Flask application that integrates traditional fu
 4. The search box persists across the pages.
 
 
-## Primary tools/resources:
+## Primary tools:
 * OpenSearch
 * Docker
 * Flask
 
 ## Usage Instructions
 
-### Start OpenSearch locally in Docker
+### Start OpenSearch cluster locally in Docker
 1. Start your Docker app or ensure it's running.
 2. Clone the project and navigate to the project's root directory.
     ```bash
@@ -37,7 +37,8 @@ This project is a hybrid search Flask application that integrates traditional fu
     * A valid password must contain a mix of upper and lower case alphanumeric characters and a special character. For example, `Myadminp@ss12321`  
     ```bash
     export OPENSEARCH_INITIAL_ADMIN_PASSWORD={yourStrongPassword123!}
-    4. Run docker-compose to start OpenSearch in Docker (in detached mode).
+    ```
+4. Run docker-compose to start OpenSearch in Docker (in detached mode).
         ```bash
         docker compose up -d
         ```
@@ -62,7 +63,7 @@ This project is a hybrid search Flask application that integrates traditional fu
     - **Password:** The value you set for `OPENSEARCH_INITIAL_ADMIN_PASSWORD`
 
 ### Setup and start the Search app
-1. Create a **.env** file in the project's root directory and add your *`OPENSEARCH_INITIAL_ADMIN_PASSWORD`* like so (replace password):  
+1. Create a **.env** file in the project's root directory and add your *`OPENSEARCH_INITIAL_ADMIN_PASSWORD`*:  
 
     `opensearch-hybrid-search/.env`
 
