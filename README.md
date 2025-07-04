@@ -1,7 +1,7 @@
 # OpenSearch Flask app for Hybrid Search (lexical and semantic) and Autocomplete.
 
 ## Demo
-Click to watch
+Click the image below to watch demo.
 
 [![Demo GIF](Demo/demo_thumbnail.png)](https://youtu.be/yXaazLgSs8A)
 
