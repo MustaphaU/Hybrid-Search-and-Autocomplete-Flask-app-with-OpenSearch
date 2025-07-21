@@ -39,9 +39,9 @@ This project is a hybrid search Flask application that integrates traditional fu
     export OPENSEARCH_INITIAL_ADMIN_PASSWORD={yourStrongPassword123!}
     ```
 4. Run docker-compose to start OpenSearch in Docker (in detached mode).
-        ```bash
-        docker compose up -d
-        ```
+    ```bash
+    docker compose up -d
+    ```
     This command launches the services defined in [docker-compose.yaml](docker-compose.yml) in detached mode. It will:
 
     - Pull the latest `opensearch` and `opensearch-dashboards` images.
