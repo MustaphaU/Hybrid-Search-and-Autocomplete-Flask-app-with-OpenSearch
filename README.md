@@ -30,7 +30,7 @@ This project is a hybrid search Flask application that integrates traditional fu
 1. Start your Docker app or ensure it's running.
 2. Clone the project and navigate to the project's root directory.
     ```bash
-    git clone https://github.com/MustaphaU/opensearch-hybrid-search.git && cd opensearch-hybrid-search
+    git clone https://github.com/MustaphaU/Hybrid-Search-and-Autocomplete-Flask-app-with-OpenSearch.git && cd Hybrid-Search-and-Autocomplete-Flask-app-with-OpenSearch
     ```
 3. Set the *`OPENSEARCH_INITIAL_ADMIN_PASSWORD`* to a strong password.   
     * Replace `{yourStrongPassword123!}` with your intended password and run the resulting command in your terminal.  
