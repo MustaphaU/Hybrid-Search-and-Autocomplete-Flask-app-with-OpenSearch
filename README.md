@@ -81,14 +81,16 @@ This project is a hybrid search Flask application that integrates traditional fu
     pip install -r requirements.txt
     ```
 
-4. Run below command to: 
-   * Update cluster settings for model management  
-   * Register and the deploy models  
-   * Create ingest and hybrid search pipelines
-   * Create index and ingest the data
+4. Run the following command:
     ```bash
     flask update-cluster-settings && flask deploy-models && flask create-pipelines && flask reindex
     ```
+This command does the following:
+   * Updates cluster settings for model management  
+   * Registers and deploy the models  
+   * Creates ingest and hybrid search pipelines
+   * Creates the index and ingests the data
+
 5. Start the search app
     ```bash
     flask run
