@@ -50,9 +50,9 @@ services:
     image: opensearchproject/opensearch-dashboards:latest # Make sure the version of opensearch-dashboards matches the version of opensearch installed on other nodes
     container_name: opensearch-dashboards
     ports:
-      - 15601:5601 # Map host port 5602 to container port 5601
+      - 15601:5601 
     expose:
-      - "5601" # Expose port 5601of container for web access to OpenSearch Dashboards
+      - "5601" # Expose port 5601 of container for web access to OpenSearch Dashboards
     environment:
       OPENSEARCH_HOSTS: '["https://opensearch-node1:9200","https://opensearch-node2:9200"]' # Define the OpenSearch nodes that OpenSearch Dashboards will query
     networks:
